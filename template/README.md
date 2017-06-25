@@ -22,6 +22,7 @@ You can find the most recent version of this guide [here](https://github.com/fac
 - [Importing a Component](#importing-a-component)
 - [Code Splitting](#code-splitting)
 - [Adding a Stylesheet](#adding-a-stylesheet)
+- [Adding a CSS Modules stylesheet](#adding-a-css-modules-stylesheet)
 - [Post-Processing CSS](#post-processing-css)
 - [Adding a CSS Preprocessor (Sass, Less etc.)](#adding-a-css-preprocessor-sass-less-etc)
 - [Adding Images, Fonts, and Files](#adding-images-fonts-and-files)
@@ -408,6 +409,50 @@ class Button extends Component {
 In development, expressing dependencies this way allows your styles to be reloaded on the fly as you edit them. In production, all CSS files will be concatenated into a single minified `.css` file in the build output.
 
 If you are concerned about using Webpack-specific semantics, you can put all your CSS right into `src/index.css`. It would still be imported from `src/index.js`, but you could always remove that import if you later migrate to a different build tool.
+
+## Adding a CSS Modules stylesheet
+
+This project supports [CSS Modules](https://github.com/css-modules/css-modules) alongside regular stylesheets using the **[name].module.css** file naming convention. CSS Modules allows the scoping of CSS by automatically prefixing class names with a unique name and hash.
+
+An advantage of this is the ability to repeat the same classname within many CSS files without worrying about a clash.
+
+### `Button.module.css`
+
+```css
+.button {
+  padding: 20px;
+}
+```
+
+### `another-stylesheet.css`
+
+```css
+.button {
+  color: green;
+}
+```
+
+### `Button.js`
+
+```js
+import React, { Component } from 'react';
+import styles from './Button.module.css'; // Import stylesheet as styles
+
+class Button extends Component {
+  render() {
+    // You can use them as regular CSS styles
+    return <div className={styles.button} />;
+  }
+}
+```
+### `exported HTML`
+No clashes from other `.button` classnames
+
+```html
+<div class="Button-module__button___1o1Ru"></div>
+```
+
+**This is an optional feature.** Regular stylesheets and imported stylesheets are fully supported. CSS Modules are only added when explictly named as a css module stylesheet using the extension `.module.css`.
 
 ## Post-Processing CSS
 
@@ -972,7 +1017,7 @@ You may also narrow down matches using `*` and/or `**`, to match the path exactl
       "target": "<url_3>",
       // ...
     },
-    // Matches /baz/abc.html and /baz/sub/def.html
+    // Matches /bar/abc.html and /bar/sub/def.html
     "/baz/**/*.html": {
       "target": "<url_4>"
       // ...
@@ -1696,7 +1741,7 @@ You can configure a custom domain with GitHub Pages by adding a `CNAME` file to 
 
 GitHub Pages doesn’t support routers that use the HTML5 `pushState` history API under the hood (for example, React Router using `browserHistory`). This is because when there is a fresh page load for a url like `http://user.github.io/todomvc/todos/42`, where `/todos/42` is a frontend route, the GitHub Pages server returns 404 because it knows nothing of `/todos/42`. If you want to add a router to a project hosted on GitHub Pages, here are a couple of solutions:
 
-* You could switch from using HTML5 history API to routing with hashes. If you use React Router, you can switch to `hashHistory` for this effect, but the URL will be longer and more verbose (for example, `http://user.github.io/todomvc/#/todos/42?_k=yknaj`). [Read more](https://reacttraining.com/react-router/web/api/Router) about different history implementations in React Router.
+* You could switch from using HTML5 history API to routing with hashes. If you use React Router, you can switch to `hashHistory` for this effect, but the URL will be longer and more verbose (for example, `http://user.github.io/todomvc/#/todos/42?_k=yknaj`). [Read more](https://github.com/reactjs/react-router/blob/master/docs/guides/Histories.md#histories) about different history implementations in React Router.
 * Alternatively, you can use a trick to teach GitHub Pages to handle 404 by redirecting to your `index.html` page with a special redirect parameter. You would need to add a `404.html` file with the redirection code to the `build` folder before deploying your project, and you’ll need to add code handling the redirect parameter to `index.html`. You can find a detailed explanation of this technique [in this guide](https://github.com/rafrex/spa-github-pages).
 
 ### Heroku
